@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--使用springMVC必须配置的三大件：处理器映射器、处理器适配器、视图解析器-->
+    <!--我们只需要手动配置视图解析器，而处理器映射器和处理器适配器只需要开启注解驱动即可-->
+
+    <!--Spring1、开启注解扫描，可以使加了@Component注解的Java类变成一个Bean-->
+    <!--@Component一般用在dao层接口的实现类上-->
+    <!--@Autowired一般用在service层的类上，用来注入接口来实现操作数据库，获取从数据库读到的数据-->
+    <!--    <context:component-scan base-package="cn.com.njust"/>-->
+    <context:component-scan base-package="cn.com.njust"/>
+
+    <!--Spring-MVC 1、开启mvc注解驱动 -->
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <!-- 处理响应中文内容乱码 -->
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="defaultCharset" value="UTF-8"/>
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/html</value>
+                        <value>application/json</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <!--Spring-MVC 2、视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!--配置前缀和后缀，也可以不指定,跳转到jsp页面，叫做互联网资源解析器-->
+        <property name="prefix" value="/WEB-INF/view/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--&lt;!&ndash;文件上传&ndash;&gt;-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--设置上传最大尺寸为50MB-->
+        <property name="maxUploadSizePerFile" value="52428800"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="resolveLazily" value="true"/>
+    </bean>
+
+    <!--静态资源映射，用于jsp页面的link标签，链接标签 -->
+    <mvc:resources mapping="/css/**" location="/resource/assets/css/"></mvc:resources>
+    <mvc:resources mapping="/js/**" location="/resource/assets/js/"></mvc:resources>
+    <mvc:resources mapping="/img/**" location="/resource/assets/img/"></mvc:resources>
+    <mvc:resources mapping="/plugin/**" location="/resource/assets/plugin/"></mvc:resources>
+
+    <!--设置拦截器-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="cn.com.njust.interceptor.HomeInterceptor"/>
+        </mvc:interceptor>
+        <!--进入后台记得界面必须要登陆否则不允许进入-->
+        <mvc:interceptor>
+            <mvc:mapping path="/admin"/>
+            <bean class="cn.com.njust.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/admin/*"/>
+            <bean class="cn.com.njust.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/admin/**/*"/>
+            <bean class="cn.com.njust.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>

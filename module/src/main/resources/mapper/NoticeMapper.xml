@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.njust.mapper.NoticeMapper">
+  <resultMap id="BaseResultMap" type="cn.com.njust.entity.Notice">
+    <!--@mbg.generated-->
+    <!--@Table notice-->
+    <id column="notice_id" jdbcType="INTEGER" property="noticeId" />
+    <result column="notice_title" jdbcType="VARCHAR" property="noticeTitle" />
+    <result column="notice_content" jdbcType="VARCHAR" property="noticeContent" />
+    <result column="notice_create_time" jdbcType="TIMESTAMP" property="noticeCreateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    notice_id, notice_title, notice_content, notice_create_time
+  </sql>
+  <select id="getNoticeById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from notice
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteById" parameterType="java.lang.Integer">
+    <!--@mbg.generated-->
+    delete from notice
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="notice_id" keyProperty="noticeId" parameterType="cn.com.njust.entity.Notice" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into notice (notice_title, notice_content, notice_create_time
+      )
+    values (#{noticeTitle,jdbcType=VARCHAR}, #{noticeContent,jdbcType=VARCHAR}, #{noticeCreateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+
+  <select id="getNotices" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from notice
+    order by notice_create_time desc
+  </select>
+</mapper>

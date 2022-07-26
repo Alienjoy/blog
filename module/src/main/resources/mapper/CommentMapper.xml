@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.njust.mapper.CommentMapper">
+    <resultMap id="BaseResultMap" type="cn.com.njust.entity.Comment">
+        <!--@mbg.generated-->
+        <!--@Table `comment`-->
+        <id column="comment_id" jdbcType="INTEGER" property="commentId"/>
+        <result column="comment_pid" jdbcType="INTEGER" property="commentPid"/>
+        <result column="comment_pname" jdbcType="VARCHAR" property="commentPname"/>
+        <result column="comment_puser_id" jdbcType="INTEGER" property="commentPuserId"/>
+        <result column="comment_article_id" jdbcType="INTEGER" property="commentArticleId"/>
+        <result column="comment_content" jdbcType="VARCHAR" property="commentContent"/>
+        <result column="comment_user_id" jdbcType="INTEGER" property="commentUserId"/>
+        <result column="comment_create_time" jdbcType="TIMESTAMP" property="commentCreateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        comment_id, comment_pid, comment_pname,comment_puser_id, comment_article_id, comment_content, comment_user_id,
+        comment_create_time
+    </sql>
+    <delete id="deleteCommentById" parameterType="java.lang.Integer">
+        <!--@mbg.generated-->
+        delete
+        from `comment`
+        where comment_id = #{commentId,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" keyColumn="comment_id" keyProperty="commentId" parameterType="cn.com.njust.entity.Comment"
+            useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into `comment` (comment_pid, comment_pname, comment_puser_id, comment_article_id,
+                               comment_content, comment_user_id, comment_create_time)
+        values (#{commentPid,jdbcType=INTEGER}, #{commentPname,jdbcType=VARCHAR},
+                #{commentPuserId,jdbcType=INTEGER}, #{commentArticleId,jdbcType=INTEGER},
+                #{commentContent,jdbcType=VARCHAR}, #{commentUserId,jdbcType=INTEGER},
+                #{commentCreateTime,jdbcType=TIMESTAMP})
+    </insert>
+    <select id="getCommentByArticleId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from `comment`
+        where comment_article_id = #{articleId,jdbcType=INTEGER}
+        order by comment_create_time desc
+    </select>
+
+    <select id="getCommentsByCriteria" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from comment
+                where
+        <if test="userId != null">
+            comment_user_id = #{userId}
+                    and
+        </if>
+        <if test="puserId != null">
+            comment_puser_id = #{puserId}
+                    and
+            <!--保证自己给自己的文章发评论算我发出的消息，不算我接收到的消息-->
+            comment_puser_id != comment_user_id
+                    and
+        </if>
+        1 = 1
+                order by comment_create_time desc
+    </select>
+
+    <select id="getCommentById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `comment`
+        where comment_id = #{commandId,jdbcType=INTEGER}
+    </select>
+
+    <!--获得最近评论，访客的评论-->
+    <select id="listRecentComment" parameterType="Integer" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `comment`
+        <where>
+            <if test="userId != null">
+                comment_user_id = #{userId}
+            </if>
+        </where>
+        ORDER BY comment_id DESC
+        LIMIT #{limit}
+    </select>
+
+
+</mapper>

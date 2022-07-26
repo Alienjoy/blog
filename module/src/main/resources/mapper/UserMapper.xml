@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.njust.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="cn.com.njust.entity.User">
+        <!--@mbg.generated-->
+        <!--@Table `user`-->
+        <id column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_pass" jdbcType="VARCHAR" property="userPass"/>
+        <result column="user_nickname" jdbcType="VARCHAR" property="userNickname"/>
+        <result column="user_email" jdbcType="VARCHAR" property="userEmail"/>
+        <result column="user_avatar" jdbcType="VARCHAR" property="userAvatar"/>
+        <result column="user_last_login_ip" jdbcType="VARCHAR" property="userLastLoginIp"/>
+        <result column="user_register_time" jdbcType="TIMESTAMP" property="userRegisterTime"/>
+        <result column="user_last_login_time" jdbcType="TIMESTAMP" property="userLastLoginTime"/>
+        <result column="user_status" jdbcType="INTEGER" property="userStatus"/>
+        <result column="user_role" jdbcType="VARCHAR" property="userRole"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        user_id, user_name, user_pass, user_nickname, user_email, user_avatar, user_last_login_ip,
+        user_register_time, user_last_login_time, user_status, user_role
+    </sql>
+
+    <select id="getUserById" resultMap="BaseResultMap">
+        select *
+        from user
+        where user_id = #{userId,jdbcType=INTEGER}
+    </select>
+
+
+    <select id="getUserByUserNameOrEmail" resultMap="BaseResultMap">
+        SELECT *
+        FROM user
+        WHERE user_name = #{userName,jdbcType=VARCHAR}
+           OR user_email = #{userName,jdbcType=VARCHAR}
+    </select>
+
+    <!--修改个人信息，只写了修改登陆时间的语句-->
+    <update id="updateUser">
+        UPDATE user
+        <set>
+            <if test="user.userLastLoginTime != null">
+                user_last_login_time=#{user.userLastLoginTime,jdbcType=TIMESTAMP}
+            </if>
+        </set>
+        WHERE user_id = #{user.userId}
+    </update>
+
+    <insert id="insertUser" keyColumn="user_id"  parameterType="cn.com.njust.entity.User" useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into `user` (user_name, user_pass, user_nickname,
+        user_email, user_avatar, user_last_login_ip,
+        user_register_time, user_last_login_time,
+        user_status, user_role)
+        values (#{user.userName,jdbcType=VARCHAR}, #{user.userPass,jdbcType=VARCHAR}, #{user.userNickname,jdbcType=VARCHAR},
+        #{user.userEmail,jdbcType=VARCHAR}, #{user.userAvatar,jdbcType=VARCHAR}, #{user.userLastLoginIp,jdbcType=VARCHAR},
+        #{user.userRegisterTime,jdbcType=TIMESTAMP}, #{user.userLastLoginTime,jdbcType=TIMESTAMP},
+        #{user.userStatus,jdbcType=INTEGER}, #{user.userRole,jdbcType=VARCHAR})
+    </insert>
+</mapper>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.njust.mapper.ArticleTagRefMapper">
+    <resultMap id="BaseResultMap" type="cn.com.njust.entity.ArticleTagRef">
+        <!--@mbg.generated-->
+        <!--@Table article_tag_ref-->
+        <id column="article_id" jdbcType="INTEGER" property="articleId"/>
+        <id column="tag_id" jdbcType="INTEGER" property="tagId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        article_id, tag_id
+    </sql>
+
+    <select id="getTagsByArticleId" resultType="cn.com.njust.entity.Tag">
+        SELECT tag.tag_id,
+               tag.tag_name
+        FROM tag,
+             article_tag_ref
+        WHERE article_tag_ref.article_id = #{articleID,jdbcType=INTEGER}
+          AND tag.tag_id = article_tag_ref.tag_id
+    </select>
+
+    <insert id="insertArticleTagRef">
+            insert into article_tag_ref(article_id, tag_id) VALUES
+            <foreach collection="article.tagList" item="tag" separator=",">
+                (#{article.articleId},#{tag.tagId})
+            </foreach>
+    </insert>
+
+    <delete id="deleteTagById">
+        delete from article_tag_ref where article_id=#{articleId,jdbcType=INTEGER}
+    </delete>
+</mapper>

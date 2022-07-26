@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+    <!--加载db.properties-->
+    <context:property-placeholder location="classpath:db.properties"/>
+
+
+    <!--要和 Spring 一起使用 MyBatis，需要在 Spring 应用上下文中定义至少两样东西：一个 SqlSessionFactory 和至少一个数据映射器类-->
+    <!--配置druid连接池-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <!-- 基本属性 url、user、password -->
+        <property name="driverClassName" value="${mysql.driver}"/>
+        <property name="url" value="${mysql.url}"/>
+        <property name="username" value="${mysql.username}"/>
+        <property name="password" value="${mysql.password}"/>
+
+        <!-- 配置初始化大小、最小、最大 -->
+        <property name="initialSize" value="1"/>
+        <property name="minIdle" value="1"/>
+        <property name="maxActive" value="20"/>
+
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="60000"/>
+
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+
+        <property name="validationQuery" value="SELECT 'x'"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+
+        <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+        <property name="poolPreparedStatements" value="true"/>
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="20"/>
+
+        <!-- 配置监控统计拦截的filters，去掉后监控界面sql无法统计 -->
+        <property name="filters" value="stat"/>
+    </bean>
+
+    <!--1、先创建一个sqlSessionFactory的对象-->
+    <!--  mybatis核心配置  -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--数据库连接池-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--加载mybatis全局配置文件，就是mybatis-config.xml-->
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml"/>
+        <!--a、mapper.xml所在位置-->
+        <property name="mapperLocations" value="classpath*:mapper/*Mapper.xml"/>
+        <!--指定需要使用别名的Bean类所在的包-->
+        <property name="typeAliasesPackage" value="cn.com.njust.entity"/>
+    </bean>
+
+
+    <!--2、创建一个数据映射器类-->
+    <!--发现映射器，见http://mybatis.org/spring/zh/mappers.html#scan示例代码-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--如果需要扫描多个包，中间使用半角逗号隔开-->
+        <!--b、mapper接口所在位置-->
+        <property name="basePackage" value="cn.com.njust.mapper"></property>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+
+    <!--3、1事务，主要是为了线程安全-->
+    <!--MyBatis-Spring 借助了 Spring 中的 DataSourceTransactionManager 来实现事务管理。-->
+    <!-- 见示例代码http://mybatis.org/spring/zh/transactions.html 对mybatis操作数据事务控制，spring使用jdbc的事务控制类 -->
+    <!--DataSourceTransactionManager是spring的类-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 数据源dataSource在spring-mybatis.xml中配置了 -->
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--3、1这下面是spring配置的-->
+    <!-- transaction-manager事务管理器，下面的两个都是txAdvice，设置事务传播特性 -->
+    <!--https://blog.csdn.net/rong_wz/article/details/53787648-->
+    <!--tx:advice属性详解-https://blog.csdn.net/qq_35626763/article/details/80507921-->
+
+    <!--transaction-manager="transactionManager"是上面的事务管理器-->
+    <!--这个建议中规定了save方法的传输方式为required,也就是说没有sessionfactory的时候会自动建立，有的时候就不会建立了。-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <!--propagation="REQUIRED"是默认值，代表必须以事务的方式运行-->
+            <!--save*表示以save开头的方法，
+            如ArticleServiceImpl的insertArticle方法就是以事务的方法运行，多个sql语句要么同时成功，要么同时失败。-->
+            <tx:method name="save*" propagation="REQUIRED"/>
+            <tx:method name="delete*" propagation="REQUIRED"/>
+            <tx:method name="update*" propagation="REQUIRED"/>
+            <tx:method name="insert*" propagation="REQUIRED"/>
+            <!--read-only是否优化只读事务，propagation="SUPPORTS"代表如果当前（当前就是调用这个执行语句的方法）有事务就在事务中执行，如果没有事务就不在事务中执行。-->
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="get*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="select*" propagation="SUPPORTS" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!--哪些类的哪些方法支持事务-->
+    <!--3、3切入点表达式，在执行impl的方法的时候会  添加@Transactional(propagation = Propagation.REQUIRED)-->
+    <!--aop:pointcut标签配置参与事务的类，由于是在Service中进行数据库业务操作，配的应该是包含那些作为事务的方法的Service类。-->
+    <aop:config>
+        <aop:advisor advice-ref="txAdvice" pointcut="execution(* cn.com.njust.service.impl.*.*(..))"/>
+    </aop:config>
+
+
+</beans>

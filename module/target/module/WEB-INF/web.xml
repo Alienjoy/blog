@@ -1,0 +1,78 @@
+<!DOCTYPE web-app PUBLIC
+        "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+    <display-name>Archetype Created Web Application</display-name>
+    <!--配置SpringMVC的前端控制器，对浏览器发送的请求统一进行处理-->
+    <servlet>
+        <servlet-name>SpringMVC</servlet-name>
+        <!--前端控制器DispatcherServlet，对请求和响应进行统一处理-->
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <!--上下文配置路径-->
+            <param-name>contextConfigLocation</param-name>
+            <!-- 使用classpath:表示从类路径查找配置文件，例如maven工程中的src/main/resources -->
+            <param-value>classpath:spring/springMVC.xml</param-value>
+        </init-param>
+        <!--将启动控制DispatcherServlet的初始化时间提前到服务器启动时-->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SpringMVC</servlet-name>
+        <!--"/"所匹配的请求可以是/login或.html或.js或.css方式的请求路径
+                但是/不能匹配.jsp请求路径的请求，
+                因此就可以避免在访问jsp页面时，该请求被DispatcherServlet处理，从而找不到相应的页面-->
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <!--下面的两个要同时写，加载spring容器-->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            classpath:spring/spring*.xml,
+        </param-value>
+    </context-param>
+    <!--配置监听器，来加载spring容器-->
+    <listener>
+        <listener-class>
+            org.springframework.web.context.ContextLoaderListener
+        </listener-class>
+    </listener>
+
+    <!--post乱码过滤器-->
+    <!-- 配置springMVC编码过滤器，不然写入文章的时候会乱码 -->
+    <filter>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <!-- 设置过滤器中的属性值 -->
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <!-- 启动过滤器 -->
+        <init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <!-- 过滤所有请求 -->
+    <filter-mapping>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+
+    <!-- logback日志打印 -->
+<!--    <context-param>-->
+<!--        <param-name>logbackConfigLocation</param-name>-->
+<!--        <param-value>classpath:logback.xml</param-value>-->
+<!--    </context-param>-->
+<!--    <listener>-->
+<!--        <listener-class>ch.qos.logback.ext.spring.web.LogbackConfigListener</listener-class>-->
+<!--    </listener>-->
+
+</web-app>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.njust.mapper.CategoryMapper">
+    <resultMap id="BaseResultMap" type="cn.com.njust.entity.Category">
+        <!--@mbg.generated-->
+        <!--@Table category-->
+        <id column="category_id" jdbcType="INTEGER" property="categoryId"/>
+        <result column="category_pid" jdbcType="INTEGER" property="categoryPid"/>
+        <result column="category_name" jdbcType="VARCHAR" property="categoryName"/>
+        <result column="category_icon" jdbcType="VARCHAR" property="categoryIcon"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        category_id, category_pid, category_name, category_icon
+    </sql>
+
+
+    <!--增加-->
+    <insert id="insertCategory" keyProperty="categoryId" parameterType="cn.com.njust.entity.Category"
+            useGeneratedKeys="true">
+        insert into category
+                (category_pid, category_name, category_icon)
+        values (#{categoryPid,jdbcType=INTEGER}, #{categoryName,jdbcType=VARCHAR},
+                #{categoryIcon,jdbcType=VARCHAR})
+    </insert>
+    <!--删除-->
+    <delete id="deleteCategory" parameterType="Integer">
+        delete
+        from category
+        where category_id = #{value}
+    </delete>
+
+    <!--改-->
+    <update id="updateCategory" parameterType="cn.com.njust.entity.Category">
+        update
+                category
+        <set>
+            <if test="categoryPid != null">
+                category_pid = #{categoryPid,jdbcType=INTEGER},
+            </if>
+            <if test="categoryName != null">
+                category_name = #{categoryName,jdbcType=VARCHAR},
+            </if>
+            <if test="categoryIcon != null">
+                category_icon = #{categoryIcon,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where category_Id = #{categoryId,jdbcType=INTEGER}
+    </update>
+
+    <!--List<Category> getCategory();-->
+    <select id="getCategory" resultMap="BaseResultMap">
+        select *
+        from category
+        order by category_id asc
+    </select>
+
+    <select id="getCategoryById" resultMap="BaseResultMap">
+        select * from category where category_id = #{categoryId,jdbcType=INTEGER}
+    </select>
+</mapper>

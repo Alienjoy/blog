@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.njust.mapper.InformationMapper">
+  <resultMap id="BaseResultMap" type="cn.com.njust.entity.Information">
+    <!--@mbg.generated-->
+    <!--@Table information-->
+    <id column="site_id" jdbcType="INTEGER" property="siteId" />
+    <result column="site_title" jdbcType="VARCHAR" property="siteTitle" />
+    <result column="site_description" jdbcType="VARCHAR" property="siteDescription" />
+    <result column="site_meta_description" jdbcType="VARCHAR" property="siteMetaDescription" />
+    <result column="site_meta_keywords" jdbcType="VARCHAR" property="siteMetaKeywords" />
+    <result column="site_page_views" jdbcType="INTEGER" property="sitePageViews" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    site_id, site_title, site_description, site_meta_description, site_meta_keywords, 
+    site_page_views
+  </sql>
+
+  <update id="updateInformation">
+    update information
+    <set>
+      <if test="siteTitle != null">
+        site_title = #{siteTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="siteDescription != null">
+        site_description = #{siteDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="siteMetaDescription != null">
+        site_meta_description = #{siteMetaDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="siteMetaKeywords != null">
+        site_meta_keywords = #{siteMetaKeywords,jdbcType=VARCHAR},
+      </if>
+      <if test="sitePageViews != null">
+        site_page_views = #{sitePageViews,jdbcType=INTEGER},
+      </if>
+    </set>
+    where site_id = #{siteId,jdbcType=INTEGER}
+  </update>
+
+  <select id="getInformation" resultMap="BaseResultMap">
+    select * from information
+  </select>
+</mapper>

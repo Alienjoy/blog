@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.njust.mapper.TagMapper">
+    <resultMap id="BaseResultMap" type="cn.com.njust.entity.Tag">
+        <!--@mbg.generated-->
+        <!--@Table tag-->
+        <id column="tag_id" jdbcType="INTEGER" property="tagId"/>
+        <result column="tag_name" jdbcType="VARCHAR" property="tagName"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        tag_id, tag_name
+    </sql>
+
+    <select id="getTagById" resultMap="BaseResultMap">
+        select *
+        from tag
+        where tag_id = #{tagId,jdbcType=INTEGER}
+    </select>
+
+    <select id="getTags" resultMap="BaseResultMap">
+        SELECT *
+        FROM tag
+        ORDER BY tag_id ASC
+    </select>
+</mapper>

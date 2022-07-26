@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.njust.mapper.ArticleMapper">
+    <resultMap id="BaseResultMap" type="cn.com.njust.entity.Article">
+        <!--@mbg.generated-->
+        <!--@Table article-->
+        <id column="article_id" jdbcType="INTEGER" property="articleId"/>
+        <result column="article_user_id" jdbcType="INTEGER" property="articleUserId"/>
+        <result column="article_title" jdbcType="VARCHAR" property="articleTitle"/>
+        <result column="article_summary" jdbcType="LONGVARCHAR" property="articleSummary"/>
+        <result column="article_content" jdbcType="LONGVARCHAR" property="articleContent"/>
+        <result column="article_view_count" jdbcType="INTEGER" property="articleViewCount"/>
+        <result column="article_comment_count" jdbcType="INTEGER" property="articleCommentCount"/>
+        <result column="article_like_count" jdbcType="INTEGER" property="articleLikeCount"/>
+        <result column="article_is_comment" jdbcType="INTEGER" property="articleIsComment"/>
+        <result column="article_status" jdbcType="INTEGER" property="articleStatus"/>
+        <result column="article_update_time" jdbcType="TIMESTAMP" property="articleUpdateTime"/>
+        <result column="article_create_time" jdbcType="TIMESTAMP" property="articleCreateTime"/>
+        <result column="article_thumbnail" jdbcType="VARCHAR" property="articleThumbnail"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        article_id, article_user_id, article_title, article_summary, article_content, article_view_count,
+        article_comment_count, article_like_count, article_is_comment, article_status, article_order,
+        article_update_time, article_create_time, article_thumbnail
+    </sql>
+
+    <select id="getArticle" resultMap="BaseResultMap">
+        SELECT article.*
+        FROM article
+        <where>
+            <if test="status != null">
+                article.article_status = #{status}
+                        AND
+            </if>
+            <if test="keywords != null">
+                article.article_content LIKE concat(concat('%', #{keywords}), '%')
+                        AND
+            </if>
+            <if test="userId != null">
+                article.article_user_id = #{userId}
+                        AND
+            </if>
+            <if test="categoryId != null">
+                article.article_id IN (
+                        SELECT article_category_ref.article_id
+                        FROM article_category_ref
+                        WHERE article_category_ref.category_id = #{categoryId}
+                        )
+                        AND
+            </if>
+            <if test="tagId != null">
+                article.article_id IN (
+                        SELECT article_tag_ref.article_id
+                        FROM article_tag_ref
+                        WHERE article_tag_ref.tag_id = #{tagId}
+                        )
+                        AND
+            </if>
+            1 = 1
+        </where>
+        ORDER BY `article`.`article_update_time` DESC, `article`.`article_id` DESC
+    </select>
+
+    <select id="getArticleById" resultMap="BaseResultMap">
+        select *
+        from article
+        where article_id = #{articleID}
+    </select>
+
+    <insert id="insertArticle" keyColumn="article_id" keyProperty="articleId"
+            parameterType="cn.com.njust.entity.Article" useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into article (article_user_id, article_title, article_summary,
+                             article_content, article_view_count, article_comment_count,
+                             article_like_count, article_is_comment, article_status,
+                             article_update_time, article_create_time,
+                             article_thumbnail)
+        values (#{articleUserId,jdbcType=INTEGER}, #{articleTitle,jdbcType=VARCHAR},
+                #{articleSummary,jdbcType=LONGVARCHAR},
+                #{articleContent,jdbcType=LONGVARCHAR}, #{articleViewCount,jdbcType=INTEGER},
+                #{articleCommentCount,jdbcType=INTEGER},
+                #{articleLikeCount,jdbcType=INTEGER}, #{articleIsComment,jdbcType=INTEGER},
+                #{articleStatus,jdbcType=INTEGER},
+                #{articleUpdateTime,jdbcType=TIMESTAMP}, #{articleCreateTime,jdbcType=TIMESTAMP},
+                #{articleThumbnail,jdbcType=VARCHAR})
+    </insert>
+
+    <delete id="deleteArticleById">
+        delete
+        from article
+        where article_id = #{articleId,jdbcType=INTEGER}
+    </delete>
+
+    <update id="updateArticle" parameterType="cn.com.njust.entity.Article">
+        update article
+        set article_title         = #{articleTitle,jdbcType=VARCHAR},
+            article_summary       = #{articleSummary,jdbcType=LONGVARCHAR},
+            article_content       = #{articleContent,jdbcType=LONGVARCHAR},
+            article_view_count    = #{articleViewCount,jdbcType=INTEGER},
+            article_comment_count = #{articleCommentCount,jdbcType=INTEGER},
+            article_like_count    = #{articleLikeCount,jdbcType=INTEGER},
+            article_is_comment    = #{articleIsComment,jdbcType=INTEGER},
+            article_status        = #{articleStatus,jdbcType=INTEGER},
+            article_update_time   = #{articleUpdateTime,jdbcType=TIMESTAMP},
+            article_create_time   = #{articleCreateTime,jdbcType=TIMESTAMP},
+            article_thumbnail     = #{articleThumbnail,jdbcType=VARCHAR}
+        where article_id = #{articleId,jdbcType=INTEGER}
+    </update>
+</mapper>

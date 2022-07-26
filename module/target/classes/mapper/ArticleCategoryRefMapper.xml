@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.njust.mapper.ArticleCategoryRefMapper">
+    <resultMap id="BaseResultMap" type="cn.com.njust.entity.ArticleCategoryRef">
+        <!--@mbg.generated-->
+        <!--@Table article_category_ref-->
+        <id column="article_id" jdbcType="INTEGER" property="articleId"/>
+        <id column="category_id" jdbcType="INTEGER" property="categoryId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        article_id, category_id
+    </sql>
+
+    <select id="getCategoryByArticleId" resultType="cn.com.njust.entity.Category">
+        SELECT category.category_id,
+               category.category_pid,
+               category.category_name
+        FROM category,
+             article_category_ref
+        WHERE article_category_ref.article_id = #{articleID,jdbcType=INTEGER}
+          AND article_category_ref.category_id = category.category_id
+        ORDER BY category.category_pid ASC
+    </select>
+
+    <insert id="insertArticleCategoryRef">
+        insert into article_category_ref(article_id, category_id)
+                values
+        <foreach collection="article.categoryList" item="category" separator=",">
+            (#{article.articleId}, #{category.categoryId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteCategoryById">
+        delete from article_category_ref where article_id=#{articleId,jdbcType=INTEGER}
+    </delete>
+</mapper>
